@@ -1,29 +1,88 @@
 #include <Servo.h> 
- 
-int servo1Pin = 9;  // vertical
-int servo2Pin = 10; // horizontal
-int laserpin = 2;
+#define arr_len(x) (sizeof(x)/sizeof(*x))
+
+int servoXPin = 10; // horizontal
+int servoYPin = 9;  // vertical
+int laserPin = 2;
 int delaylength = 15;
 int longdelay = 1000;
 
-int min = 0;
-int max = 20; // increase this for bigger drawing
+int min = 00;
+int max = 30; // increase this for bigger drawing
 
-Servo servo1;  
-Servo servo2;  
+Servo servoy;  
+Servo servox;  
 
-int angle1 = max;  // servo 1 position in degrees; start top 
-int angle2 = max;  // servo 2 position in degrees; start left
+int xangle = 0;  // servo 2 position in degrees; start left
+int yangle = 0;  // servo 1 position in degrees; start top 
  
 void setup() { 
-  servo1.attach(servo1Pin); 
-  servo2.attach(servo2Pin); 
-  pinMode(laserpin, OUTPUT); 
-  servo1.write(angle1);
-  servo2.write(angle2);
-} 
+  servox.attach(servoXPin); 
+  servoy.attach(servoYPin); 
+  pinMode(laserPin, OUTPUT); 
+  servox.write(xangle);
+  servoy.write(yangle);
+}
+
+  int stroke1[] = {min,min,max,max};
+  int stroke2[] = {max,min,min,max};
 
 void loop() {
+  gotopoint(stroke1[0], stroke1[1]);
+  gotopoint(stroke1[2], stroke1[3]);
+  delay(longdelay);
+  gotopoint(max, min);
+  gotopoint(max, max);
+  delay(longdelay);
+}
+
+void gotopoint(int tox, int toy) {
+  digitalWrite(laserPin, HIGH);
+//  int steps = 2;
+//  float xint = (tox - xangle) / steps;
+//  float yint = (toy - yangle) / steps;
+//  for(int i = 0; i < steps ; i++) {
+//    xangle += xint;
+//    yangle += yint;
+//    servox.write(xangle);
+//    servoy.write(yangle);
+//    delay(longdelay / steps);
+//  }
+  xangle = tox;
+  yangle = toy;
+  delay(longdelay / 4);
+  servox.write(xangle);
+  servoy.write(yangle);
+  delay(longdelay / 4);
+  digitalWrite(laserPin, LOW);
+}
+
+void drawstroke(int strokedata[]) {
+  int points = arr_len(strokedata)/2; // not sure if this works!
+  for(int i = 1; i < points; i++) {
+    int xpoint = strokedata[i * 2];
+    int ypoint = strokedata[i * 2 + 1];
+    gotopoint(xpoint, ypoint);
+  }
+}
+
+
+// old:
+
+//int yangle1 = max;  // servo 1 position in degrees; start top 
+//int xangle2 = max;  // servo 2 position in degrees; start left
+
+
+//void setup() { 
+//  servox.attach(servoXPin); 
+//  servoy.attach(servoYPin); 
+//  pinMode(laserpin, OUTPUT); 
+//  servox.write(xangle);
+//  servoy.write(yangle);
+//} 
+
+
+//void loop() {
 //  upstroke();
 //  rightstroke();
 //  downstroke();
@@ -32,8 +91,8 @@ void loop() {
 //  point(0, 10);
 //  point(10, 10);
 //  point(10, 0);
-  circle(5);
-}
+//  circle(5);
+//}
 
 void circle(int radius) {
   point(min, radius);
@@ -47,49 +106,49 @@ void circle(int radius) {
 }
 
 void point(int xover, int yover) {
-  digitalWrite(laserpin, LOW);  
-  angle1 = yover;
-  angle2 = xover;
-  servo1.write(angle1);
-  servo2.write(angle2);
-  digitalWrite(laserpin, HIGH);
+  digitalWrite(laserPin, LOW);  
+  xangle = xover;
+  yangle = yover;
+  servox.write(xangle);
+  servoy.write(yangle);
+  digitalWrite(laserPin, HIGH);
   delay(longdelay/2);
-  digitalWrite(laserpin, LOW);  
+  digitalWrite(laserPin, LOW);  
 }
 
 void rightstroke() {
-  digitalWrite(laserpin, HIGH);
-  for(angle2 = max; angle2 > min; angle2--) {
-    servo2.write(angle2);
+  digitalWrite(laserPin, HIGH);
+  for(xangle = max; xangle > min; xangle--) {
+    servox.write(xangle);
     delay(delaylength);
   }
-  digitalWrite(laserpin, LOW);
+  digitalWrite(laserPin, LOW);
 }
 
 
 void leftstroke() {
-  digitalWrite(laserpin, HIGH);
-  for(angle2 = min; angle2 < max; angle2++) {
-    servo2.write(angle2);
+  digitalWrite(laserPin, HIGH);
+  for(xangle = min; xangle < max; xangle++) {
+    servox.write(xangle);
     delay(delaylength);
   }
-  digitalWrite(laserpin, LOW);
+  digitalWrite(laserPin, LOW);
 }
 
 void upstroke() {
-  digitalWrite(laserpin, HIGH);
-  for(angle1 = max; angle1 > min; angle1--) {
-    servo1.write(angle1);
+  digitalWrite(laserPin, HIGH);
+  for(yangle = max; yangle > min; yangle--) {
+    servoy.write(yangle);
     delay(delaylength);
   }
-  digitalWrite(laserpin, LOW);
+  digitalWrite(laserPin, LOW);
 }
 
 void downstroke() {
-  digitalWrite(laserpin, HIGH);
-  for(angle1 = min; angle1 < max; angle1++) {
-    servo1.write(angle1);
+  digitalWrite(laserPin, HIGH);
+  for(yangle = min; yangle < max; yangle++) {
+    servoy.write(yangle);
     delay(delaylength);
   }
-  digitalWrite(laserpin, LOW);
+  digitalWrite(laserPin, LOW);
 }
